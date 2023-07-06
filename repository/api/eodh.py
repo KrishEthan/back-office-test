@@ -1,13 +1,20 @@
 import os
 from requests import Session
 from dotenv import load_dotenv
+import streamlit as st
 
 class EodhAPI:
     load_dotenv()
+    
+    # Local Machine API Configuration
+    # EODH_API_BASE_URL = os.getenv("EODH_API_BASE_URL")
+    # EODH_API_TOKEN = os.getenv("EODH_API_TOKEN")
+    # EODH_API_LIMIT = int(os.getenv("EODH_API_LIMIT"))
 
-    EODH_API_BASE_URL = os.getenv("EODH_API_BASE_URL")
-    EODH_API_TOKEN = os.getenv("EODH_API_TOKEN")
-    EODH_API_LIMIT = int(os.getenv("EODH_API_LIMIT"))
+    # Streamlit API Configuration
+    EODH_API_BASE_URL = st.secrets["eodh_api"]["base_url"]
+    EODH_API_TOKEN = st.secrets["eodh_api"]["api_token"]
+    EODH_API_LIMIT = st.secrets["eodh_api"]["api_limit"]
 
     def __init__(self):
         self.session = Session()

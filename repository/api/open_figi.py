@@ -2,13 +2,19 @@ import requests
 import pandas as pd
 from dotenv import load_dotenv
 import os
-
+import streamlit as st
 
 class OpenFigiAPI:
     load_dotenv()
 
-    OPEN_FIGI_API_KEY = os.getenv("OPEN_FIGI_API_KEY")
-    OPEN_FIGI_BASE_URL = os.getenv("OPEN_FIGI_BASE_URL")
+    # Local machine API Configuration
+    # OPEN_FIGI_API_KEY = os.getenv("OPEN_FIGI_API_KEY")
+    # OPEN_FIGI_BASE_URL = os.getenv("OPEN_FIGI_BASE_URL")
+    # OPEN_FIGI_MAPPING_URL = OPEN_FIGI_BASE_URL + "/v3/mapping/"
+
+    # Streamlit API Configuration
+    OPEN_FIGI_BASE_URL = st.secrets["open_figi"]["base_url"]
+    OPEN_FIGI_API_KEY = st.secrets["open_figi"]["api_key"]
     OPEN_FIGI_MAPPING_URL = OPEN_FIGI_BASE_URL + "/v3/mapping/"
 
     def __init__(self):
