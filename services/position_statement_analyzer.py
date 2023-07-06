@@ -139,12 +139,15 @@ class PositionStatementAnalyzer:
         return security_codes
 
     def get_securities_not_found(self, not_found_df, security_found_eodh, yfinance_df):
-        security_yfinance = yfinance_df['Ticker'].tolist()
+        if yfinance_df is not None:
+            security_yfinance = yfinance_df['Ticker'].tolist()
+        
+            for security in security_found_eodh:
+                security_yfinance.append(security['Security Code'])
 
-        for security in security_found_eodh:
-            security_yfinance.append(security['Security Code'])
-
-        return not_found_df[~not_found_df['Security Code'].isin(security_yfinance)]
+            return not_found_df[~not_found_df['Security Code'].isin(security_yfinance)]
+        else:
+            return not_found_df
     
 
 

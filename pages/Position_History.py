@@ -23,7 +23,7 @@ def main():
     #     "password": os.getenv("DB_PASSWORD")
     # }
 
-    # database = DatabaseConnector(st.secrets.postgres)
+    # database = DatabaseConnector(db_config)
     # connection = database.connect()
     
     
