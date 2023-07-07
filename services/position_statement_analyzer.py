@@ -139,7 +139,7 @@ class PositionStatementAnalyzer:
     def get_unfound_securities(self, missing_tickers_df, securities_found_in_eodh, yfinance_securities_df):
 
         if yfinance_securities_df is None or yfinance_securities_df.empty:
-            return pd.DataFrame()
+            return missing_tickers_df
         
         yfinance_security_codes = yfinance_securities_df['Ticker'].tolist()
 
