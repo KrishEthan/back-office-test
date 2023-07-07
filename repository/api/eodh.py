@@ -17,6 +17,9 @@ class EodhAPI:
     EODH_API_LIMIT = st.secrets["eodh_api"]["api_limit"]
 
     def __init__(self):
+        if not all([self.EODH_API_BASE_URL, self.EODH_API_TOKEN, self.EODH_API_LIMIT]):
+            raise ValueError("EOD API configurations are not fully set.")
+        
         self.session = Session()
         self.session.params = {
             "fmt": "json",
@@ -25,21 +28,31 @@ class EodhAPI:
         }
         self.session.headers.update({"Accept": "application/json"})
         
-    def get_info(self, ticker):
-        ticker = ticker.split(".")[0]
-        url = f"{self.EODH_API_BASE_URL}/api/search/{ticker}"
-        response = self.session.get(url)
-        data = response.json()
-        if response.status_code == 200:
-            return data, data != []
-        else:
-            return data, False
+    def get_info(self, stock_ticker):
+        ''' Fetches information for a given stock ticker. '''
+        if not stock_ticker:
+            raise ValueError("Stock ticker is required.")
+        
+        clean_ticker = stock_ticker.split(".")[0]
+        request_url = f"{self.EODH_API_BASE_URL}/api/search/{clean_ticker}"
 
-    def get_info_multiple_tickers(self, tickers):
-        results = []
-        for ticker in tickers:
-            data, success = self.get_info(ticker)
-            if success:
-                results.extend(data)
-        return results
+        try:
+            response = self.session.get(request_url)
+            response.raise_for_status()
+            response_data = response.json()
+            return response_data, response_data != []
+        except Exception as error:
+            print(f"EodhAPI: Error for {clean_ticker}",error)
+            return [], False
+
+    def get_info_multiple_tickers(self, stock_tickers):
+        ''' Fetches information for multiple stock tickers. '''
+        if not stock_tickers or not isinstance(stock_tickers, list):
+            raise ValueError("Stock tickers should be a non-empty list.")
+        combined_results = []
+        for ticker in stock_tickers:
+            ticker_data, fetch_successful = self.get_info(ticker)
+            if fetch_successful and ticker_data:
+                combined_results.extend(ticker_data)
+        return combined_results
 

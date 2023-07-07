@@ -17,19 +17,25 @@ class OpenFigiAPI:
     OPEN_FIGI_API_KEY = st.secrets["open_figi"]["api_key"]
     OPEN_FIGI_MAPPING_URL = OPEN_FIGI_BASE_URL + "/v3/mapping/"
 
-    def __init__(self):
-
+    def __init__(self): 
+        if not all([self.OPEN_FIGI_API_KEY, self.OPEN_FIGI_BASE_URL, self.OPEN_FIGI_MAPPING_URL]):
+            raise ValueError("OpenFIGI API configurations are not fully set.")
+        
         self.headers = {
             'Content-Type': 'text/json',
             'X-OPENFIGI-APIKEY': self.OPEN_FIGI_API_KEY,
         }
 
     def get_ticker_data(self, isin):
+        if not isin:
+            raise ValueError("ISIN is required.")
+        
         data = [
             {"idType": "ID_ISIN", "idValue": isin},
         ]
         try:
             response = requests.post(self.OPEN_FIGI_MAPPING_URL, headers=self.headers, json=data)
+            response.raise_for_status()  
             api_data = response.json()
 
             combined_data = []
