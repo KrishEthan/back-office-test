@@ -49,17 +49,17 @@ class PositionStatementAnalyzer:
         """
         Display securities found in EODH in the Streamlit app.
         """
-        st.title("Security Found in EODH")
+        st.title("Securities found in EODH")
         security_found_eodh_df = pd.DataFrame(security_found_eodh)
         st.dataframe(security_found_eodh_df, use_container_width=True)
 
     def display_securities_found_in_yfinance(self, yfinance_df):
-        st.title("Securities Found in YFinance")
+        st.title("Securities found in YFinance")
         st.dataframe(yfinance_df, use_container_width=True)
 
     
     def display_securities_not_found(self, securities_not_found):
-        st.title("Securities Not Found in EODH and YFinance")
+        st.title("Securities not found in EODH and YFinance")
         st.dataframe(securities_not_found, use_container_width=True)
 
 
@@ -179,7 +179,7 @@ class PositionStatementAnalyzer:
         try:
             figi_tickers_df, not_found_figi_tickers = self.search_tickers_in_open_figi(missing_tickers, figi_api)
 
-            self.display_data(not_found_figi_tickers, "Not found figi tickers", ["ISIN"])
+            self.display_data(not_found_figi_tickers, "Not found OpenFigi tickers", ["ISIN"])
 
 
             # Add 'Security Code' column to the missing_tickers DataFrame
@@ -240,10 +240,10 @@ class PositionStatementAnalyzer:
                 percentage_difference = self.calculate_percentage_change(market_to_market_price, eod_price)
                 if abs(percentage_difference) >= threshold:
                     significant_price_changes.append((sanitized_security_id, isin, currency_code, market_to_market_price, eod_price, percentage_difference))
-            else:
+            elif isin != "0":
                 unidentified_tickers.append((sanitized_security_id, isin, currency_code, market_to_market_price, eod_price, 0))
 
-
-        self.display_data(significant_price_changes, "Significant Changes", ["Security ID", "ISIN", "CCY", "MTM Price", "Close Price", "Difference"])
-        self.display_data(unidentified_tickers, "Not Found Tickers", ["Security ID", "ISIN", "CCY", "MTM Price", "Close Price", "Difference"])
+        column_names = ["Security ID", "ISIN", "CCY", "MTM Price", "Close Price", "Difference"]
+        self.display_data(significant_price_changes, "Significant Changes", column_names)
+        self.display_data(unidentified_tickers, "Not Found Tickers", column_names)
         self.search_and_display_security_eodh(unidentified_tickers)
