@@ -50,3 +50,9 @@ class PositionStatements:
 
         self.cursor.execute(query)
         return self.cursor.fetchall()
+    
+    def get_asset_class_records(self, date):
+        query = f"SELECT asset_class, SUM(mtm_rpt_ccy) as total_mtm_rpt_ccy FROM position_statements WHERE statement_date = '{date}' GROUP BY asset_class"
+        self.cursor.execute(query)
+        return self.cursor.fetchall()
+

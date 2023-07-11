@@ -202,6 +202,7 @@ ticker_mapping = {
 asset_map = {
     "Bond": "Bonds & Equivalent",
     "Bonds": "Bonds & Equivalent",
+    "Bondsss": "Bonds & Equivalent",
     "Deposit": "Cash & Equivalent",
     "Short-term investments": "Cash & Equivalent",
     "Other Derivative": "Derivatives & Equivalent",
@@ -212,6 +213,7 @@ asset_map = {
     "Equity": "Equity & Equivalent",
     "Equities": "Equity & Equivalent",
     "Equity ETFs": "Equity & Equivalent",
+    "Equity Option": "Equity & Equivalent",
     "bond fund": "Bonds & Equivalent",
     "Cash": "Cash & Equivalent",
     "Fund": "Equity & Equivalent",
@@ -243,5 +245,6 @@ asset_map = {
     "Hedge funds": "Private Assets",
     "FX Derivatives - Forwards and Swaps": "FX & Equivalent",
     "FX Derivatives": "FX & Equivalent",
+    "FX Contracts": "FX & Equivalent",
     "Funds": "Equity & Equivalent"
 }
