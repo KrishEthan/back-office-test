@@ -1,9 +1,10 @@
-from utils.mapping import ticker_mapping
-import streamlit as st
 import pandas as pd
+import streamlit as st
+from utils.mapping import ticker_mapping
 from repository.api.eodh import EodhAPI
 from repository.api.open_figi import OpenFigiAPI
 from repository.api.yfinance import YFinanceAPI
+from repository.api.market_db import MarketDBApi
 
 
 class PositionStatementAnalyzer:
@@ -70,15 +71,16 @@ class PositionStatementAnalyzer:
             return pd.DataFrame()
 
         figi_tickers_df = pd.DataFrame()
+        not_found_tickers = []
         for ticker in missing_tickers:
             isin = ticker[1]
             try:
                 temp_df = figi_api.get_ticker_data(isin)
                 figi_tickers_df = pd.concat([figi_tickers_df, temp_df], ignore_index=True)
             except Exception as e:
-                raise ValueError(f"Error while searching tickers in OpenFigi API: {str(e)}")
-
-        return figi_tickers_df
+                isin = ticker[1]
+                not_found_tickers.append(isin)
+        return figi_tickers_df, not_found_tickers
     
     def get_info_for_unique_tickers(self, merged_df, eodh_api):
         """
@@ -114,6 +116,9 @@ class PositionStatementAnalyzer:
         if missing_tickers_df is None or missing_tickers_df.empty:
             return []
         
+        if ticker_info_df is None or ticker_info_df.empty:
+            return []
+
         securities_found_in_eodh = []
         for security_code in missing_tickers_df["Security Code"]:
             if security_code in ticker_info_df['Code'].tolist():
@@ -137,11 +142,11 @@ class PositionStatementAnalyzer:
         return security_codes
 
     def get_unfound_securities(self, missing_tickers_df, securities_found_in_eodh, yfinance_securities_df):
-
         if yfinance_securities_df is None or yfinance_securities_df.empty:
             eodh_security_codes = [security['Security Code'] for security in securities_found_in_eodh]
-            missing_tickers_df[~missing_tickers_df['Security Code'].isin(eodh_security_codes)]
+            missing_tickers_df = missing_tickers_df[~missing_tickers_df['Security Code'].isin(eodh_security_codes)]
             return missing_tickers_df
+
         
         yfinance_security_codes = yfinance_securities_df['Ticker'].tolist()
 
@@ -149,7 +154,15 @@ class PositionStatementAnalyzer:
             yfinance_security_codes.append(security['Security Code'])
 
         return missing_tickers_df[~missing_tickers_df['Security Code'].isin(yfinance_security_codes)]
+    
+    def add_ticker_market_db(self, market_db_api, securities_found_in_eodh):
+        if securities_found_in_eodh is None:
+            st.warning("securities_found_in_eodh must not be None or empty")
+            return
 
+        securities_found_in_eodh_df = pd.DataFrame(securities_found_in_eodh)
+        eodh_symbol_list = securities_found_in_eodh_df['Security Code'].to_list()
+        market_db_api.add_tickers(eodh_symbol_list)
 
     def search_and_display_security_eodh(self, missing_tickers):
         """
@@ -162,20 +175,27 @@ class PositionStatementAnalyzer:
         figi_api = OpenFigiAPI()
         eodh_api = EodhAPI()
         yfinance_api = YFinanceAPI()
+        market_db_api = MarketDBApi()
         try:
-            figi_tickers_df = self.search_tickers_in_open_figi(missing_tickers, figi_api)
+            figi_tickers_df, not_found_figi_tickers = self.search_tickers_in_open_figi(missing_tickers, figi_api)
+
+            self.display_data(not_found_figi_tickers, "Not found figi tickers", ["ISIN"])
+
 
             # Add 'Security Code' column to the missing_tickers DataFrame
             missing_tickers_df = self.add_security_code_column(missing_tickers)
 
             # Get ticker info for unique tickers
             ticker_info_df = self.get_info_for_unique_tickers(figi_tickers_df, eodh_api)
-
+        
             # Find securities in EODH for missing_tickers_df
             securities_found_in_eodh = self.find_security_in_eodh(ticker_info_df, missing_tickers_df)
-            
+
             # Display securities found in EODH
             self.display_security_found_eodh(securities_found_in_eodh)
+
+            # Add tickers to market_db
+            self.add_ticker_market_db(market_db_api, securities_found_in_eodh)
             
             # Get remaining missing tickers after checking in EODH
             missing_tickers_eodh = self.get_missing_tickers_eodh(missing_tickers_df, securities_found_in_eodh)
@@ -184,7 +204,7 @@ class PositionStatementAnalyzer:
             yfinance_securities_df = yfinance_api.get_data_multiple_tickers(missing_tickers_eodh)
             
             # Display securities found in YFinance
-            self.display_securities_found_in_yfinance(yfinance_securities_df)
+            self.display_securities_found_in_yfinance(yfinance_securities_df)            
 
             # Get unfound securities after searching in EODH and YFinance
             unfound_securities = self.get_unfound_securities(missing_tickers_df, securities_found_in_eodh, yfinance_securities_df)

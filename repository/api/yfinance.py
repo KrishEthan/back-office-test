@@ -1,6 +1,6 @@
 import yfinance as yf
 import pandas as pd
-
+import streamlit as st
 class YFinanceAPI:
     def get_data_multiple_tickers(self, tickers):
         """

@@ -1,6 +1,5 @@
 import os
 import streamlit as st
-import psycopg2
 from dotenv import load_dotenv
 from database.database_connector import DatabaseConnector
 from database.database_connector import StreamLitDatabaseConnector
@@ -56,8 +55,12 @@ def main():
     with col5:
         selected_date = st.date_input("Select a date", datetime.now())
 
+
     if st.button("Submit"):
         position_statement_analyzer.run(selected_date, asset_class, client_name, custodian_name, threshold)
     
 if __name__ == "__main__":
-    main()  
+    if st.session_state.get('authenticated', False):
+        main()
+    else:
+        st.warning('Please login to access this page') 

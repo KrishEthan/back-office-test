@@ -48,4 +48,7 @@ def main():
         position_history_analyzer.run(selected_date, selected_asset_class, threshold)
 
 if __name__ == "__main__":
-    main()  
+    if st.session_state.get('authenticated', False):
+        main()
+    else:
+        st.warning('Please login to access this page')

@@ -45,4 +45,4 @@ class OpenFigiAPI:
             df = pd.DataFrame(combined_data)
             return df
         except Exception as error:
-            print("OpenFigiAPI Error:", error)
+            raise error

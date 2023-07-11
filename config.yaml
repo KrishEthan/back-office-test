@@ -1,0 +1,10 @@
+credentials:
+  usernames:
+    krish:
+      email: krish@ethan-ai.com
+      name: Krish Parekh
+      password: $2b$12$wUA5CoqGflHO8jNw4V/xLOusCO9klkKOaQqambWyJulGRFth0vQK.
+cookie:
+  expiry_days: 30
+  key: ethanai
+  name: ethanai
