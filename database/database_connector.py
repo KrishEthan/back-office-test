@@ -26,8 +26,7 @@ class DatabaseConnector:
             )
             return connection
         except psycopg2.DatabaseError as database_error:
-            print("Unable to connect to the database. Error: ", database_error)
-            return None
+            raise Exception(f"Unable to connect to the database. Error: {database_error}")
 
 
 class StreamLitDatabaseConnector:
@@ -40,5 +39,4 @@ class StreamLitDatabaseConnector:
             connection = psycopg2.connect(**db_config)
             return connection
         except psycopg2.DatabaseError as database_error:
-            print("Unable to connect to the database. Error: ", database_error)
-            return None
+            raise Exception(f"Unable to connect to the database. Error: {database_error}")
